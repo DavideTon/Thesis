@@ -9,7 +9,7 @@ def t_ev(h_file):
     # Set the parameter variables
 
     # Simulation time
-    s_time = 3 + np.pi
+    s_time = 3 * np.pi
 
     # Time Step
     dt = 0.001
@@ -52,33 +52,29 @@ def t_ev(h_file):
 
     # Evolve the initial state and calculate the entropy
 
-    def ev(t_step):
+    d_exp = np.diag(np.exp(-1j * e_vals * dt))
+    U = e_vecs @ d_exp @ e_vecs.conj().T
 
-        # Evolve the state
-        d_exp = np.diag(np.exp(-1j * e_vals * t_step * dt))
-        U = e_vecs @ d_exp @ e_vecs.conj().T
-        psi = U @ psi0
+    s_matrix = np.zeros((int(n / 2), t_steps))
 
-        # Compute density matrices
-        rho_out = np.outer(psi, np.conj(psi))
+    psi_t = psi0.copy()
 
-        return rho_out
-
-    s_matrix = [[] for _ in range(int(n / 2))]
-
-    for i in range(t_steps):
-        rho = ev(i)
-
+    for t in range(t_steps):
         for div in range(1, int(n / 2) + 1):
-            # Compute reduced density matrix
-            rho1 = rho.reshape(2 ** div, 2 ** (n - div), 2 ** div, 2 ** (n - div))
-            rho1 = np.trace(rho1, axis1=1, axis2=3)
+            # Calculate the reduced density matrix
+
+            d1, d2 = 2 ** div, 2 ** (n - div)
+            C = psi_t.reshape(d1, d2)
+            rho1 = C @ C.conj().T
 
             # Calculate the Von Neumann Entropy
-            e_vals1, _ = eigh(rho1)
-            s_matrix[div - 1].append(-np.dot(e_vals1, np.log(e_vals1) / np.log(n)))
+            s_vals = np.linalg.eigvalsh(rho1)
+            s_vals = s_vals[s_vals > 1e-12]
+            s_matrix[div - 1][t] = -np.sum(s_vals * np.log2(s_vals))
 
-        print(f"Completed at {round((i * 100)/t_steps, 2)} %")
+        psi_t = U @ psi_t
+
+        print(f"Completed at {round((t * 100)/t_steps, 2)} %")
 
     s_matrix = np.array(s_matrix)
 
@@ -91,7 +87,7 @@ def t_ev(h_file):
 
 if __name__ == "__main__":
     start = time.time()
-    t_ev("H_9Q.npy")
+    t_ev("H_6Q.npy")
     end = time.time()
 
     print(f"\nTime taken: {end - start:.4f} seconds")

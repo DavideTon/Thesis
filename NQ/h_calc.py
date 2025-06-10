@@ -34,11 +34,11 @@ def h_calc(sites):
     h = np.zeros((2**sites, 2**sites), dtype=complex)
 
     for site in range(0, sites - 1):
-        print(f"Completed at {int(((site + 1) * 100) / (sites - 1))}%")
         i1 = np.eye(2 ** site, dtype=complex)
         i2 = np.eye(2 ** (sites - site - 2), dtype=complex)
         h += (np.kron(np.kron(np.kron(i1, X), X), i2) + np.kron(np.kron(np.kron(i1, Y), Y), i2)
               + np.kron(np.kron(np.kron(i1, Z), Z), i2))
+        print(f"Completed at {int(((site + 1) * 100) / (sites - 1))}%")
 
     print("\nHamiltonian Matrix:")
     print(h)

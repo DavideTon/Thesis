@@ -15,28 +15,29 @@ def graph(ev_file):
 
     data = np.load(ev_file)
     t_points = data["t_points"]
-    s_matrix = data["s_matrix"]
+    entropy = data["s_matrix"]
 
     # Plot Data
 
     plt.figure(figsize=(10, 7))
 
-    for i, entropy in enumerate(s_matrix):
-        plt.plot(t_points, entropy, label=f"{i + 1}Q", linewidth=3)
+    plt.plot(t_points, entropy, linewidth=3)
 
     plt.xlabel("Time (1/J)", fontsize=16, labelpad=10)
     plt.xticks(fontsize=16)
-    plt.ylabel("Entropy", fontsize=16, labelpad=10)
+    plt.ylabel("Entanglement", fontsize=16, labelpad=10)
     plt.yticks(fontsize=16)
 
-    plt.title("Entanglement Entropy for ", fontsize=16, pad=15)
-    plt.legend(fontsize=16)
+    plt.title(f"Entanglement for {n} Qubits with Noise", fontsize=16, pad=15)
+
+    # plt.legend(fontsize=16)
     plt.grid(True)
 
-    plt.savefig(f"{n}Q.png", format='png', dpi=300)
+    plt.savefig(f"Ent_{n}Q+E.png", format='png', dpi=300)
 
     plt.show()
 
 
 if __name__ == "__main__":
-    graph("ev_6Q.npz")
+    for i in range(2, 7):
+        graph(f"Ent_{i}Q.npz")
